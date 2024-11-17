@@ -1,11 +1,8 @@
 import "./App.css";
+import Body from "./components/Body";
 
 function App() {
-  return (
-    <div className="App flex items-center justify-center">
-      <h1 className="font-bold">Hello</h1>
-    </div>
-  );
+  return <Body />;
 }
 
 export default App;

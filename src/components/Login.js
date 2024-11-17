@@ -1,11 +1,63 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import Header from "./Header";
+import { checkValidData } from "../utils/validate";
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+} from "firebase/auth";
+import { auth } from "../utils/firebase";
 
 const Login = () => {
   const [isSignInForm, setIsSignInForm] = useState(true);
+  const [errMessage, setErrMessage] = useState(null);
+
+  const name = useRef(null);
+  const email = useRef(null);
+  const password = useRef(null);
 
   const toggleSignInForm = () => {
     setIsSignInForm(!isSignInForm);
+    if (email.current) email.current.value = "";
+    if (password.current) password.current.value = "";
+  };
+
+  const handleButtonClick = () => {
+    const message = checkValidData(
+      isSignInForm ? "Placeholder Name" : name.current?.value || "",
+      email.current?.value,
+      password.current?.value
+    );
+
+    if (!isSignInForm) {
+      createUserWithEmailAndPassword(
+        auth,
+        email.current?.value,
+        password.current?.value
+      )
+        .then((userCredential) => {
+          const user = userCredential.user;
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+        });
+      setErrMessage(message);
+    } else {
+      signInWithEmailAndPassword(
+        auth,
+        email.current?.value,
+        password.current?.value
+      )
+        .then((userCredential) => {
+          const user = userCredential.user;
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+        });
+
+      setErrMessage(message);
+    }
   };
 
   return (
@@ -18,28 +70,38 @@ const Login = () => {
           className="w-screen h-screen object-cover"
         />
       </div>
-      <form className="absolute p-12 bg-black w-3/12 my-36 mx-auto right-0 left-0 text-white bg-opacity-80">
+      <form
+        onSubmit={(e) => e.preventDefault()}
+        className="absolute p-12 bg-black w-3/12 my-36 mx-auto right-0 left-0 text-white bg-opacity-80"
+      >
         <h1 className="font-bold text-3xl py-4">
           {isSignInForm ? "Sign In" : "Sign Up"}
         </h1>
         {!isSignInForm && (
           <input
             type="text"
+            ref={name}
             placeholder="Full Name"
             className="p-4 my-4 w-full bg-black bg-opacity-50 border border-{#909090}"
           />
         )}
         <input
           type="text"
+          ref={email}
           placeholder="Email Address"
           className="p-4 my-4 w-full bg-black bg-opacity-50 border border-{#909090}"
         />
         <input
           type="password"
+          ref={password}
           placeholder="Password"
           className="p-4 my-4 w-full bg-black bg-opacity-50 border border-{#909090}"
         />
-        <button className="p-4 my-6 bg-red-700 text-white w-full rounded-lg">
+        <p className="text-red-600 py-2">{errMessage}</p>
+        <button
+          onClick={handleButtonClick}
+          className="p-4 my-6 bg-red-700 text-white w-full rounded-lg"
+        >
           {isSignInForm ? "Sign In" : "Sign Up"}
         </button>
         <div className="flex">

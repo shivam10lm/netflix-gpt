@@ -10,7 +10,6 @@ const useNowPlayingMovies = () => {
   const getNowPlayingMovies = async () => {
     const res = await axios.get(url, options);
     const results = res.data?.results;
-    //console.log(results);
     dispatch(addNowPlayingMovies(results));
   };
   useEffect(() => {
